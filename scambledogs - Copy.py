@@ -173,7 +173,7 @@ while (True):
                     break
                 print("Data received on data socket:", data_received.decode())
                 
-                with open("test_read_me.txt", 'wb') as file:
+                 with open("received_file.txt", 'wb') as file:
                         file.write(data_received)
 
                 print("File downloaded successfully.")

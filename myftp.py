@@ -98,3 +98,31 @@ while True:
         clientSocket.send(f"DELE {args[1]}\r\n".encode())
         resp = clientSocket.recv(1024)
         print(resp.decode())
+
+    elif (command == "get"):
+        data_port = random.randint(1025, 65535)  # Choose a random port number
+        open_con = f"127,0,0,1,{data_port // 256},{data_port % 256}"
+        print(type(data_port))
+
+        clientSocket.send(f"PORT {open_con}\r\n".encode())
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+
+        clientSocket.send("RETR redta.txt\r\n".encode())
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+
+        dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        dataSocket.bind(("127.0.0.1", int(data_port)))
+        dataSocket.listen(5)
+        dataPort, a = dataSocket.accept()
+
+        resp = dataPort.recv(1024)
+        print("Data received on data socket:", resp.decode())     
+        with open(args[1], 'wb') as file:
+            file.write(resp)
+
+
+        dataPort.close()
+        data = clientSocket.recv(2048)
+        print(data.decode())
