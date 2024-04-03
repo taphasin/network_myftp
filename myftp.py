@@ -66,10 +66,7 @@ while True:
         print(resp.decode())
 
 
-    elif command == "rename":
-        clientSocket.send(f"RNFR readta.txt {args[1]}\r\n".encode())
-        resp = clientSocket.recv(1024)
-        print(resp.decode())
+
 
 
     elif command == "ascii":
