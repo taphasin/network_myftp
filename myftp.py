@@ -65,10 +65,6 @@ while True:
         resp = clientSocket.recv(1024)
         print(resp.decode())
 
-
-
-
-
     elif command == "ascii":
         clientSocket.send("TYPE A\r\n".encode())
         resp = clientSocket.recv(1024)
@@ -86,5 +82,10 @@ while True:
         
     elif command == "pwd":
         clientSocket.send("XPWD\r\n".encode())
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+
+    elif command == "rename":
+        clientSocket.send(f"RNFR readta.txt {args[1]}\r\n".encode())
         resp = clientSocket.recv(1024)
         print(resp.decode())
