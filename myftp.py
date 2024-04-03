@@ -36,7 +36,7 @@ while True:
 
     elif command == 'ls':
 
-        data_port = random.randint(1025, 65535)  # Choose a random port number
+        data_port = random.randint(1025, 65535)
         open_con = f"127,0,0,1,{data_port // 256},{data_port % 256}"
         print(type(data_port))
 
@@ -99,8 +99,8 @@ while True:
         resp = clientSocket.recv(1024)
         print(resp.decode())
 
-    elif (command == "get"):
-        data_port = random.randint(1025, 65535)  # Choose a random port number
+    elif command == "get":
+        data_port = random.randint(1025, 65535)
         open_con = f"127,0,0,1,{data_port // 256},{data_port % 256}"
         print(type(data_port))
 
@@ -108,7 +108,7 @@ while True:
         resp = clientSocket.recv(1024)
         print(resp.decode())
 
-        clientSocket.send("RETR redta.txt\r\n".encode())
+        clientSocket.send(f"RETR {args[1]}\r\n".encode())
         resp = clientSocket.recv(1024)
         print(resp.decode())
 
@@ -122,6 +122,33 @@ while True:
         with open(args[1], 'wb') as file:
             file.write(resp)
 
+
+        dataPort.close()
+        data = clientSocket.recv(2048)
+        print(data.decode())
+
+
+    elif command == "put":
+        data_port = random.randint(1025, 65535)
+        open_con = f"127,0,0,1,{data_port // 256},{data_port % 256}"
+        print(type(data_port))
+
+        clientSocket.send(f"PORT {open_con}\r\n".encode())
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+
+        clientSocket.send(f"STOR {args[1]}\r\n".encode())
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+
+        dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        dataSocket.bind(("127.0.0.1", int(data_port)))
+        dataSocket.listen(5)
+        dataPort, a = dataSocket.accept()
+
+        with open("rebex.txt", 'rb') as file:
+            data = file.read(1024)
+            dataPort.send(data)
 
         dataPort.close()
         data = clientSocket.recv(2048)
