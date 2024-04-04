@@ -8,7 +8,11 @@ while True:
     args = line.split()
     command = args[0]
 
-    if command == 'open':
+
+    if (isconnect == False and command in ['ascii','binary','cd','close','delete','disconnect','get','ls','put','pwd','rename']):
+        print("Not connected.")
+    
+    elif command == 'open':
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             server = args[1]
@@ -26,14 +30,25 @@ while True:
         resp = clientSocket.recv(1024)
         print(resp.decode(), end = "")
 
-        password = input("Password:")
-        clientSocket.send(f"PASS {password}\r\n".encode())
-        resp = clientSocket.recv(1024)
-        print(resp.decode(), end = "")
-        isconnect = True
+        resp_sp = resp.decode()
+        resp_sp = resp_sp.split()
 
-    if (isconnect == False and command in ['ascii','binary','cd','close','delete','disconnect','get','ls','open','put','pwd','rename','user']):
-        print("Not connected.")
+
+        if resp_sp[0] == "501":
+            print("Login failed.")
+        else:
+            password = input("Password:")
+            clientSocket.send(f"PASS {password}\r\n".encode())
+            resp = clientSocket.recv(1024)
+            print(resp.decode(), end = "")
+
+            resp_sp = resp.decode()
+            resp_sp = resp_sp.split()
+
+            if resp_sp[0] == "530":
+                print("Login failed.")
+            else:
+                isconnect = True
 
     elif (command == 'quit' or command == 'bye'):
         try:
