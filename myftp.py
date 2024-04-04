@@ -10,14 +10,18 @@ while True:
 
     if command == 'open':
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print(f"Connected to {args[1]}")
-        clientSocket.connect((f"{args[1]}", 21))
+        try:
+            server = args[1]
+        except:
+            server = input("To ")
+        print(f"Connected to {server}")
+        clientSocket.connect((f"{server}", 21))
         resp = clientSocket.recv(1024)
         print(resp.decode(), end = "")
 
         print("202 UTF8 mode is always enabled. No need to send this command")
 
-        user = input(f"User ({args[1]}:(none)): ")
+        user = input(f"User ({server}:(none)): ")
         clientSocket.send(f"USER {user}\r\n".encode())
         resp = clientSocket.recv(1024)
         print(resp.decode(), end = "")
@@ -219,24 +223,29 @@ while True:
             
 
     elif command == "user":
-        if not args[1]:
-            user = input("Username: ")
-            if not user:
+        try:
+            username = args[1]
+        except:
+            username = input("Username ")
+            if username == None:
                 print("Usage: user username [password] [account]")
                 break
 
-        clientSocket.send(f"USER {args[1]}")
+        clientSocket.send(f"USER {username}\r\n".encode())
         resp = clientSocket.recv(1024)
         print(resp.decode(), end = "")
 
-
-        if not args[2]:
+        try:
+            password = args[2]
+        except:
             password = input("Password: ")
-        
-        clientSocket.send(f"PASS {args[2]}")
+
+        clientSocket.send(f"PASS {password}\r\n".encode())
         resp = clientSocket.recv(1024)
         print(resp.decode(), end = "")
 
     
     else:
         print("Invalid command.")
+
+
