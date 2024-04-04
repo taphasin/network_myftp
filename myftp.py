@@ -7,11 +7,13 @@ while True:
     args = line.split()
 
     command = args[0]
-    print(command)
-    if command == 'quit':
+    if (command == 'quit' or command == 'bye'):
+        clientSocket.send("QUIT\r\n")
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+        clientSocket.close()
         break
-    elif command == 'bye':
-        break
+
     elif command == 'open':
         clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clientSocket.connect(("127.0.0.1", 21))
@@ -29,24 +31,26 @@ while True:
         resp = clientSocket.recv(1024)
         print(resp.decode())
 
-    elif command == 'disconnect':
+    elif (command == 'disconnect' or command == 'close'):
+        clientSocket.send("QUIT\r\n")
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
         clientSocket.close()
-        print('disconnect')
+        
 
 
     elif command == 'ls':
 
         data_port = random.randint(1025, 65535)
         open_con = f"127,0,0,1,{data_port // 256},{data_port % 256}"
-        print(type(data_port))
 
         clientSocket.send(f"PORT {open_con}\r\n".encode())
         resp = clientSocket.recv(1024)
-        print(resp.decode())
+        print(resp.decode(), end = "")
 
         clientSocket.send("NLST\r\n".encode())
         resp = clientSocket.recv(1024)
-        print(resp.decode())
+        print(resp.decode(), end="")
 
         dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         dataSocket.bind(("127.0.0.1", int(data_port)))
@@ -55,15 +59,14 @@ while True:
 
         while True:
             resp = dataPort.recv(1024)
-            print(resp.decode())
+            print(resp.decode(), end="")
                  
             if not resp:
-                print("not data_received")
                 break
 
         dataSocket.close()
         resp = clientSocket.recv(1024)
-        print(resp.decode())
+        print(resp.decode(), end="")
 
     elif command == "ascii":
         clientSocket.send("TYPE A\r\n".encode())
@@ -153,3 +156,26 @@ while True:
         dataPort.close()
         data = clientSocket.recv(2048)
         print(data.decode())
+
+    elif command == "user":
+        if not args[1]:
+            user = input("Username: ")
+            if not user:
+                print("Usage: user username [password] [account]")
+                break
+
+        clientSocket.send(f"USER {args[1]}")
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+
+
+        if not args[2]:
+            password = input("Password: ")
+        
+        clientSocket.send(f"PASS {args[2]}")
+        resp = clientSocket.recv(1024)
+        print(resp.decode())
+
+    
+    else:
+        print("Invalid command.")
