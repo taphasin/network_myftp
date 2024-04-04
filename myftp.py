@@ -168,30 +168,41 @@ while True:
 
 
     elif command == "put":
-        data_port = random.randint(1025, 65535)
-        open_con = f"127,0,0,1,{data_port // 256},{data_port % 256}"
-        print(type(data_port), end = "")
+        try:
+            put_file = args[1]
+        except:
+            put_file = input("Local file ")
+        try:
+            file = open(f"{put_file}", "rb")
 
-        clientSocket.send(f"PORT {open_con}\r\n".encode())
-        resp = clientSocket.recv(1024)
-        print(resp.decode(), end = "")
+            data_port = random.randint(1025, 65535)
+            open_con = f"127,0,0,1,{data_port // 256},{data_port % 256}"
 
-        clientSocket.send(f"STOR {args[1]}\r\n".encode())
-        resp = clientSocket.recv(1024)
-        print(resp.decode(), end = "")
+            clientSocket.send(f"PORT {open_con}\r\n".encode())
+            resp = clientSocket.recv(1024)
+            print(resp.decode(), end = "")
 
-        dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        dataSocket.bind(("127.0.0.1", int(data_port)))
-        dataSocket.listen(5)
-        dataPort, a = dataSocket.accept()
+            clientSocket.send(f"STOR {put_file}\r\n".encode())
+            resp = clientSocket.recv(1024)
+            print(resp.decode(), end = "")
 
-        with open("rebex.txt", 'rb') as file:
+            dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            dataSocket.bind(("127.0.0.1", int(data_port)))
+            dataSocket.listen(5)
+            dataPort, a = dataSocket.accept()
+            print("has come this state")
+
             data = file.read(1024)
             dataPort.send(data)
 
-        dataPort.close()
-        data = clientSocket.recv(2048)
-        print(data.decode(), end = "")
+            dataPort.close()
+            data = clientSocket.recv(2048)
+            print(data.decode(), end = "")
+
+        except FileNotFoundError:
+            print(f"{put_file}: File not found")
+            
+            
 
     elif command == "user":
         if not args[1]:
