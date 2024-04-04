@@ -128,24 +128,43 @@ while True:
         resp = clientSocket.recv(1024)
         print(resp.decode(), end = "")
 
-        clientSocket.send(f"RETR {args[1]}\r\n".encode())
+        try: 
+            remotefile = args[1]         
+        except:
+            remotefile = input("Remote file ")
+
+        clientSocket.send(f"RETR {remotefile}\r\n".encode())
         resp = clientSocket.recv(1024)
         print(resp.decode(), end = "")
 
-        dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        dataSocket.bind(("127.0.0.1", int(data_port)))
-        dataSocket.listen(5)
-        dataPort, a = dataSocket.accept()
+        resp_sp = resp.decode()
+        resp_sp = resp_sp.split()
+        if resp_sp[0] == "550":
+            print("in 53")
+            pass
+        else:
+            dataSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            dataSocket.bind(("127.0.0.1", int(data_port)))
+            dataSocket.listen(5)
+            dataPort, a = dataSocket.accept()
+            resp = dataPort.recv(1024)
 
-        resp = dataPort.recv(1024)
-        print("Data received on data socket:", resp.decode() , end = "")     
-        with open(args[1], 'wb') as file:
-            file.write(resp)
+            try:
+                localfile = args[2]
+            except:
+                try:
+                    localfile = args[1]
+                except:
+                    localfile = input("Local file ")
 
 
-        dataPort.close()
-        data = clientSocket.recv(2048)
-        print(data.decode(), end = "")
+            with open(localfile, 'wb') as file:
+                file.write(resp)
+
+
+            dataPort.close()
+            data = clientSocket.recv(2048)
+            print(data.decode(), end = "")
 
 
     elif command == "put":
